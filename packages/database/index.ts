@@ -9,7 +9,7 @@ function createQueryClient() {
   const usesPooler =
     env.DATABASE_URL.includes("pgbouncer=true") || env.DATABASE_URL.includes(":6543/");
 
-  if (process.env.NODE_ENV !== "prod") {
+  if (process.env.NODE_ENV !== "production") {
     try {
       const host = new URL(env.DATABASE_URL.replace(/^postgresql?:/, "http:")).host;
       console.info(`[database] connecting to ${host} (pooler=${usesPooler})`);
