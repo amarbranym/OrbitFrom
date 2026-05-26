@@ -1,0 +1,17 @@
+# App-specific ignores (root .gitignore covers the monorepo)
+# https://nextjs.org/docs/app/api-reference/config/next-config-js
+
+# Next.js build & cache
+/.next/
+/out/
+
+# Vercel
+/.vercel
+
+# TypeScript incremental build
+*.tsbuildinfo
+
+# Env in this app only (root also ignores **/.env*)
+.env
+.env.*
+!.env.example

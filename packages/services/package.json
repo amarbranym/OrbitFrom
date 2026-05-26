@@ -1,0 +1,23 @@
+{
+  "name": "@repo/services",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/cookie": "^0.6.0",
+    "@types/nodemailer": "^6.4.17",
+    "dotenv-cli": "^11.0.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@repo/auth": "workspace:*",
+    "@repo/database": "workspace:*",
+    "@repo/form-schema": "workspace:*",
+    "@repo/logger": "workspace:*",
+    "cookie": "^1.0.2",
+    "google-auth-library": "^10.5.0",
+    "nodemailer": "^7.0.6",
+    "zod": "^4.3.5"
+  }
+}

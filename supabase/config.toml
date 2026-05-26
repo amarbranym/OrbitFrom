@@ -1,0 +1,11 @@
+# Supabase local CLI config — linked project: uoihkltxwgtyghwobrwt
+# Docs: https://supabase.com/docs/guides/cli/config
+
+project_id = "uoihkltxwgtyghwobrwt"
+
+[api]
+enabled = true
+
+[db]
+port = 54322
+major_version = 15

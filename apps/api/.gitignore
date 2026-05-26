@@ -1,0 +1,7 @@
+# API server build output
+dist/
+*.tsbuildinfo
+
+# Env (root .gitignore covers **/.env*)
+.env
+.env.*

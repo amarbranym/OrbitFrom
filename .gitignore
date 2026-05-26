@@ -1,0 +1,116 @@
+# =============================================================================
+# OrbitForm monorepo — https://help.github.com/articles/ignoring-files/
+# =============================================================================
+
+# --- Dependencies ---
+node_modules/
+.pnp
+.pnp.js
+.pnp.cjs
+.yarn/
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# --- Package managers ---
+pnpm-debug.log*
+.npm
+*.tgz
+
+# --- Environment & secrets (any package / app) ---
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.example
+!.env.example
+
+# --- Turborepo ---
+.turbo/
+
+# --- Build outputs ---
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Next.js (apps/web) — commit next-env.d.ts per Next.js docs
+**/.next/
+
+# API / packages (tsup, tsc)
+apps/api/dist/
+
+# --- Testing & coverage ---
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# --- Logs & debug ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# --- Vercel / deployment ---
+.vercel/
+
+# --- Supabase CLI (local temp; keep supabase/migrations/) ---
+supabase/.branches/
+supabase/.temp/
+.supabase/
+
+# --- Docker (local volumes only) ---
+docker-data/
+
+# --- OS ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# --- Editors & IDEs ---
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# Optional: ignore personal VS Code overrides (team settings in .vscode/ can stay tracked)
+.vscode/*.local
+
+# --- Certificates & keys ---
+*.pem
+*.key
+!**/*.example.key
+
+# --- Misc caches ---
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+*.local
+
+# --- TypeScript (incremental) ---
+*.tsbuildinfo
+
+# --- Drizzle (local studio cache only; keep packages/database/drizzle/) ---
+.drizzle/
+
+# --- Cursor / AI (local agent artifacts) ---
+.cursor/
+.agent/
