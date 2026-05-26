@@ -1,68 +1,53 @@
-# PostgreSQL setup
+# Database (Supabase + Drizzle)
 
-OrbitForm uses **PostgreSQL** with Drizzle ORM. Recommended: **Docker** (matches `.env` credentials).
+OrbitForm uses **Supabase Postgres** with **Drizzle ORM**. Migrations live in `packages/database/drizzle/`.
 
-## Option A — Docker (recommended)
+## 1. Supabase project
 
-Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/) (or Docker Engine + Compose).
+1. Create a project at [supabase.com](https://supabase.com).
+2. Copy from **Project Settings → API**:
+   - Project URL → `NEXT_PUBLIC_SUPABASE_URL`
+   - Publishable key → `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+3. Copy from **Project Settings → Database**:
+   - Database password (set on create)
+   - Connection strings for pooler (`6543`) and session (`5432`)
 
-```bash
-# Start Postgres (postgres / postgres, database: dev)
-pnpm db:up
-
-# Apply migrations
-pnpm db:migrate
-
-# Run app
-pnpm dev
-```
-
-**One-shot setup:**
+## 2. Local `.env`
 
 ```bash
-pnpm setup   # db:up + db:migrate
-pnpm dev
+cp .env.example .env
 ```
 
-**Stop database:**
-
-```bash
-pnpm db:down
-```
-
-Default connection (in `.env`):
+Set (URL-encode special characters in the password):
 
 ```env
-DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5434/dev
+DATABASE_URL=postgresql://postgres.<ref>:<password>@<region>.pooler.supabase.com:6543/postgres?pgbouncer=true
+DIRECT_URL=postgresql://postgres.<ref>:<password>@<region>.pooler.supabase.com:5432/postgres
 ```
 
-Docker maps host port **5434** → container `5432` (avoids conflict with local Postgres on `5432`).
-
----
-
-## Option B — Local PostgreSQL (no Docker)
-
-Install Postgres locally and create `dev`:
+## 3. Run migrations
 
 ```bash
-createdb dev
-```
-
-Set `DATABASE_URL` in `.env` to your user/password. See comments in `.env.example`.
-
-```bash
+pnpm install
 pnpm db:migrate
-pnpm dev
 ```
 
----
+Creates: `users`, `email_otps`, `sessions`, `forms`, `form_submissions`.
 
-## Tables (auth)
+Optional demo data (local only):
+
+```bash
+pnpm db:seed
+```
+
+## 4. Tables
 
 | Table | Purpose |
 |-------|---------|
 | `users` | Accounts |
 | `email_otps` | OTP codes (hashed) |
 | `sessions` | Login sessions |
+| `forms` | Form documents |
+| `form_submissions` | Responses |
 
-Migrations live in `packages/database/drizzle/`.
+Backup SQL: `supabase/migrations/20260526120000_orbitform_initial_schema.sql` (Supabase SQL editor).

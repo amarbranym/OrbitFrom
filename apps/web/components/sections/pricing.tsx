@@ -21,6 +21,7 @@ const plans = [
     description: "For solo creators getting started.",
     features: ["Up to 3 forms", "100 responses/month", "Public & unlisted visibility"],
     cta: "Start free",
+    highlighted: false,
   },
   {
     name: "Pro",
@@ -41,8 +42,9 @@ const plans = [
     description: "For organizations at scale.",
     features: ["SSO and admin controls", "Custom limits", "Dedicated support", "Security reviews"],
     cta: "Talk to sales",
+    highlighted: false,
   },
-] as const;
+];
 
 export function PricingSection() {
   return (

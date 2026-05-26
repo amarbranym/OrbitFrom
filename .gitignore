@@ -66,9 +66,6 @@ supabase/.branches/
 supabase/.temp/
 .supabase/
 
-# --- Docker (local volumes only) ---
-docker-data/
-
 # --- OS ---
 .DS_Store
 .DS_Store?
