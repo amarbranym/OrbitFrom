@@ -29,7 +29,11 @@ import { normalizeDocument } from "~/lib/forms/normalize-document";
 import { serializeDocumentSnapshot } from "~/lib/forms/document-snapshot";
 import { insertFieldOnPage, insertPageAfter } from "~/lib/forms/field-page-order";
 import { saveDocument as persistDocumentLocally } from "~/lib/forms/storage";
-import { getTemplateFields } from "~/lib/forms/template-fields";
+import { getTemplateDefinition } from "~/lib/forms/template-fields";
+import {
+  getThemePreset,
+  themePresetToDocumentTheme,
+} from "~/lib/forms/themes/form-theme-presets";
 import { trpc } from "~/trpc/client";
 
 type BuilderEditorContextValue = {
@@ -57,6 +61,8 @@ type BuilderEditorContextValue = {
   openProperties: (fieldId: string) => void;
   closeProperties: () => void;
   saveDocumentNow: () => Promise<void>;
+  /** Applies a theme preset and persists to the database (required for shared links). */
+  applyTheme: (presetId: string) => Promise<void>;
   updateField: (fieldId: string, patch: Partial<FieldSchema>) => void;
   updateDocument: (patch: Partial<FormDocument>) => void;
   removeField: (fieldId: string) => void;
@@ -149,9 +155,12 @@ export function BuilderEditorProvider({ children }: BuilderEditorProviderProps) 
   useEffect(() => {
     if (isNew && !createStartedRef.current) {
       createStartedRef.current = true;
+      const templateDef = templateId ? getTemplateDefinition(templateId) : null;
+
       createMutation.mutate({
         title: formTitle,
-        fields: templateId ? getTemplateFields(templateId) : undefined,
+        description: templateDef?.description,
+        fields: templateDef?.fields,
       });
     }
   }, [isNew, formTitle, templateId, createMutation.mutate]);
@@ -238,45 +247,71 @@ export function BuilderEditorProvider({ children }: BuilderEditorProviderProps) 
     setIsFormPropertiesOpen(false);
   }, []);
 
-  const saveDocumentNow = useCallback((): Promise<void> => {
-    const doc = normalizeDocument(documentRef.current);
-    if (isNew || !UUID_RE.test(doc.id)) {
-      return Promise.resolve();
-    }
+  const persistDocumentToServer = useCallback(
+    (doc: FormDocument, successMessage?: string): Promise<FormDocument> => {
+      const normalized = normalizeDocument(doc);
+      if (isNew || !UUID_RE.test(normalized.id)) {
+        return Promise.resolve(normalized);
+      }
 
-    return new Promise((resolve, reject) => {
-      updateMutation.mutate(
-        {
-          formId: doc.id,
-          title: doc.title,
-          description: doc.description,
-          slug: doc.slug,
-          visibility: doc.visibility,
-          presentationMode: doc.presentationMode,
-          theme: doc.theme,
-          settings: doc.settings,
-          fields: doc.fields,
-          logic: doc.logic,
-        },
-        {
-          onSuccess: (saved) => {
-            markDocumentSaved(saved);
-            void utils.forms.list.invalidate();
-            if (saved.status === "published") {
-              void utils.publicForms.listExplore.invalidate();
+      return new Promise((resolve, reject) => {
+        updateMutation.mutate(
+          {
+            formId: normalized.id,
+            title: normalized.title,
+            description: normalized.description,
+            slug: normalized.slug,
+            visibility: normalized.visibility,
+            presentationMode: normalized.presentationMode,
+            theme: normalized.theme,
+            settings: normalized.settings,
+            fields: normalized.fields,
+            logic: normalized.logic,
+          },
+          {
+            onSuccess: (saved) => {
+              markDocumentSaved(saved);
+              void utils.forms.list.invalidate();
               void utils.publicForms.getBySlug.invalidate({ slug: saved.slug });
-            }
-            toast.success("Form saved");
-            resolve();
+              if (saved.status === "published") {
+                void utils.publicForms.listExplore.invalidate();
+              }
+              if (successMessage) {
+                toast.success(successMessage);
+              }
+              resolve(saved);
+            },
+            onError: (err) => {
+              toast.error(err.message);
+              reject(err);
+            },
           },
-          onError: (err) => {
-            toast.error(err.message);
-            reject(err);
-          },
-        },
-      );
-    });
-  }, [isNew, markDocumentSaved, updateMutation, utils]);
+        );
+      });
+    },
+    [isNew, markDocumentSaved, updateMutation, utils],
+  );
+
+  const saveDocumentNow = useCallback((): Promise<void> => {
+    return persistDocumentToServer(documentRef.current, "Form saved").then(() => undefined);
+  }, [persistDocumentToServer]);
+
+  const applyTheme = useCallback(
+    async (presetId: string) => {
+      const preset = getThemePreset(presetId);
+      const next = normalizeDocument({
+        ...documentRef.current,
+        theme: themePresetToDocumentTheme(preset),
+      });
+
+      setDocument(next);
+      documentRef.current = next;
+      persistDocumentLocally(next);
+
+      await persistDocumentToServer(next, `${preset.name} theme applied`);
+    },
+    [persistDocumentToServer],
+  );
 
   const openThemePreview = useCallback((presetId?: string) => {
     setThemePreviewPresetId(presetId ?? null);
@@ -426,6 +461,7 @@ export function BuilderEditorProvider({ children }: BuilderEditorProviderProps) 
       openProperties,
       closeProperties,
       saveDocumentNow,
+      applyTheme,
       updateField,
       updateDocument,
       removeField,
@@ -461,6 +497,7 @@ export function BuilderEditorProvider({ children }: BuilderEditorProviderProps) 
       openProperties,
       closeProperties,
       saveDocumentNow,
+      applyTheme,
       updateField,
       updateDocument,
       removeField,

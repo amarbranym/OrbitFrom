@@ -20,13 +20,35 @@ import type {
 } from "~/lib/forms/themes/form-theme-presets";
 import { cn } from "~/lib/utils";
 
+type ThemedLiveConfig = {
+  onSubmit: (
+    values: Record<string, unknown>,
+    meta?: { honeypot?: string },
+  ) => void | Promise<void>;
+  showHoneypot?: boolean;
+  submitLabel?: string;
+};
+
 type ThemedFormPreviewProps = {
   document: FormDocument;
   theme: FormThemePreset;
-  viewport: ThemePreviewViewport;
+  viewport?: ThemePreviewViewport;
+  /** Fill full viewport height (used on public pages). */
+  fullHeight?: boolean;
+  /** When set, submissions are persisted (public form). */
+  live?: ThemedLiveConfig;
+  /** Custom body inside the themed card (e.g. thank-you page). */
+  children?: React.ReactNode;
 };
 
-export function ThemedFormPreview({ document, theme, viewport }: ThemedFormPreviewProps) {
+export function ThemedFormPreview({
+  document,
+  theme,
+  viewport = "desktop",
+  fullHeight = false,
+  live,
+  children,
+}: ThemedFormPreviewProps) {
   const fields = document.fields;
   const fieldsVersion = useMemo(
     () =>
@@ -40,9 +62,15 @@ export function ThemedFormPreview({ document, theme, viewport }: ThemedFormPrevi
   );
 
   const zodSchema = useMemo(() => buildZodSchema(fields), [fieldsVersion]);
-  const defaultValues = useMemo(() => buildDefaultValues(fields), [fieldsVersion]);
+  const defaultValues = useMemo(
+    () => ({
+      ...buildDefaultValues(fields),
+      ...(live?.showHoneypot ? { _honeypot: "" } : {}),
+    }),
+    [fieldsVersion, live?.showHoneypot],
+  );
 
-  const form = useForm<Record<string, unknown>>({
+  const form = useForm<Record<string, unknown> & { _honeypot?: string }>({
     resolver: zodResolver(zodSchema),
     defaultValues,
     mode: "onTouched",
@@ -50,25 +78,47 @@ export function ThemedFormPreview({ document, theme, viewport }: ThemedFormPrevi
   });
 
   const backgroundStyle = theme.backgroundImage
-    ? { backgroundImage: theme.backgroundImage, backgroundSize: "cover", backgroundPosition: "center" }
+    ? {
+        backgroundImage: theme.backgroundImage,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }
     : theme.backgroundGradient
       ? { background: theme.backgroundGradient }
       : { backgroundColor: theme.backgroundColor };
 
   const description = document.description?.trim();
-  const submitLabel = getSubmitButtonLabel(document, theme.submitLabel);
+  const submitLabel =
+    live?.submitLabel ?? getSubmitButtonLabel(document, theme.submitLabel);
 
   const compact = viewport === "mobile";
   const cozy = viewport === "tablet";
 
+  const fieldStyles = {
+    "--foreground": theme.textColor,
+    "--muted-foreground": theme.mutedTextColor,
+  } as React.CSSProperties;
+
+  const handleSubmit = live
+    ? form.handleSubmit(async (values) => {
+        const { _honeypot, ...answers } = values;
+        await live.onSubmit(answers, { honeypot: _honeypot });
+      })
+    : form.handleSubmit(() => {
+        /* Preview only — validation feedback without persisting */
+      });
+
   return (
     <div
-      className="flex min-h-full w-full justify-center"
+      className={cn(
+        "flex w-full items-start justify-center py-10 md:py-16",
+        fullHeight ? "min-h-screen" : "min-h-full",
+      )}
       style={backgroundStyle}
     >
       <div
         className={cn(
-          "w-full overflow-hidden shadow-2xl transition-all duration-300",
+          "mx-auto w-full max-w-2xl overflow-hidden shadow-2xl transition-all duration-300",
           compact ? "text-sm" : "",
         )}
         style={{
@@ -136,28 +186,35 @@ export function ThemedFormPreview({ document, theme, viewport }: ThemedFormPrevi
             </header>
           ) : null}
 
-          {isMultiPageForm(document) ? (
-            <ThemedStepperPreview document={document} theme={theme} compact={compact} />
+          {children ? (
+            children
+          ) : isMultiPageForm(document) ? (
+            <ThemedStepperPreview
+              document={document}
+              theme={theme}
+              compact={compact}
+              live={live}
+            />
           ) : (
             <Form {...form} key={fieldsVersion}>
-              <form
-                onSubmit={form.handleSubmit(() => {
-                  /* Preview only — validation feedback without persisting */
-                })}
-                className={cn(compact ? "space-y-4" : "space-y-6")}
-              >
+              <form onSubmit={handleSubmit} className={cn(compact ? "space-y-4" : "space-y-6")}>
+                {live?.showHoneypot ? (
+                  <input
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden
+                    className="pointer-events-none absolute h-0 w-0 opacity-0"
+                    {...form.register("_honeypot")}
+                  />
+                ) : null}
                 <div
                   className={cn(
                     "[&_label]:font-medium",
                     theme.id === "nightfall" &&
                       "[&_input]:border-slate-600 [&_input]:bg-slate-800/50 [&_textarea]:border-slate-600 [&_textarea]:bg-slate-800/50",
                   )}
-                  style={
-                    {
-                      "--foreground": theme.textColor,
-                      "--muted-foreground": theme.mutedTextColor,
-                    } as React.CSSProperties
-                  }
+                  style={fieldStyles}
                 >
                   <FormRenderer fields={fields} mode="live" control={form.control} />
                 </div>
@@ -165,8 +222,9 @@ export function ThemedFormPreview({ document, theme, viewport }: ThemedFormPrevi
                 <div className="flex justify-center pt-2">
                   <button
                     type="submit"
+                    disabled={live?.submitLabel?.endsWith("…")}
                     className={cn(
-                      "font-semibold shadow-md transition-opacity hover:opacity-90",
+                      "font-semibold shadow-md transition-opacity hover:opacity-90 disabled:opacity-70",
                       compact ? "px-8 py-2 text-xs" : "px-10 py-2.5 text-sm",
                     )}
                     style={{
@@ -192,8 +250,8 @@ export function ThemedFormPreview({ document, theme, viewport }: ThemedFormPrevi
             }}
           >
             <p>
-              Never submit passwords through forms. Report suspicious forms to
-              protect our community.
+              Never submit passwords through forms. Report suspicious forms to protect our
+              community.
             </p>
             <p className="mt-1 opacity-70">Powered by OrbitForm</p>
           </div>

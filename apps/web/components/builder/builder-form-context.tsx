@@ -3,6 +3,8 @@
 import { createContext, useContext, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 
+import { formTemplates } from "~/lib/forms/template-gallery-data";
+
 type BuilderFormContextValue = {
   formId: string;
   formTitle: string;
@@ -22,10 +24,14 @@ export function BuilderFormProvider({ formId, children }: BuilderFormProviderPro
   const value = useMemo(() => {
     const name = searchParams.get("name")?.trim();
     const template = searchParams.get("template");
+    const templateMeta = template
+      ? formTemplates.find((item) => item.id === template)
+      : undefined;
 
     const formTitle =
       name ??
-      (formId === "new" ? (template ? "Template form" : "Untitled form") : "Form");
+      templateMeta?.name ??
+      (formId === "new" ? "Untitled form" : "Form");
 
     const params = new URLSearchParams();
     if (name) params.set("name", name);

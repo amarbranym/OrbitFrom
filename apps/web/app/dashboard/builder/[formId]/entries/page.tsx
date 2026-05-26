@@ -81,60 +81,63 @@ export default function BuilderEntriesPage() {
   }, []);
 
   return (
-    <div className="flex-1 space-y-6 overflow-auto p-6">
-      <FormAnalyticsCharts analytics={analytics} isLoading={analyticsLoading} />
+    <div className="flex-1  overflow-auto ">
+      <div className="max-w-7xl mx-auto space-y-6 p-6">
+        <FormAnalyticsCharts analytics={analytics} isLoading={analyticsLoading} />
 
-      <Card className="overflow-hidden border-border/60">
-        <CardHeader className="flex flex-row items-start justify-between gap-4 border-b border-border/50 bg-muted/15 pb-5">
-          <div className="space-y-1">
-            <CardTitle className="text-xl">All entries</CardTitle>
-            <CardDescription>
-              {totalCount} response{totalCount === 1 ? "" : "s"} collected
-              {allSubmissions.length > 0 && allSubmissions.length < totalCount
-                ? ` · ${allSubmissions.length} loaded`
-                : null}
-            </CardDescription>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="shrink-0 rounded-lg"
-            onClick={() => void handleExport()}
-            disabled={exportQuery.isFetching || totalCount === 0}
-          >
-            <IconDownload className="size-4" />
-            Export CSV
-          </Button>
-        </CardHeader>
-        <CardContent className="p-0 pt-0">
-          <div className="px-6 pb-6 pt-6">
-          {submissionsLoading && allSubmissions.length === 0 ? (
-            <div className="space-y-3">
-              <Skeleton className="h-10 w-full max-w-xs rounded-xl" />
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-14 w-full rounded-xl" />
-              ))}
+        <Card className="overflow-hidden border-border/60">
+          <CardHeader className="flex flex-row items-start justify-between gap-4 border-b border-border/50 bg-muted/15 pb-5">
+            <div className="space-y-1">
+              <CardTitle className="text-xl">All entries</CardTitle>
+              <CardDescription>
+                {totalCount} response{totalCount === 1 ? "" : "s"} collected
+                {allSubmissions.length > 0 && allSubmissions.length < totalCount
+                  ? ` · ${allSubmissions.length} loaded`
+                  : null}
+              </CardDescription>
             </div>
-          ) : (
-            <FormEntriesTable
-              submissions={allSubmissions}
-              fields={document?.fields ?? []}
-              onSelect={openEntry}
-              hasMore={Boolean(nextCursor)}
-              isLoadingMore={isFetching}
-              onLoadMore={nextCursor ? () => setCursor(nextCursor) : undefined}
-            />
-          )}
-          </div>
-        </CardContent>
-      </Card>
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0 rounded-lg"
+              onClick={() => void handleExport()}
+              disabled={exportQuery.isFetching || totalCount === 0}
+            >
+              <IconDownload className="size-4" />
+              Export CSV
+            </Button>
+          </CardHeader>
+          <CardContent className="p-0 pt-0">
+            <div className="px-6 pb-6 pt-6">
+              {submissionsLoading && allSubmissions.length === 0 ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-10 w-full max-w-xs rounded-xl" />
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-14 w-full rounded-xl" />
+                  ))}
+                </div>
+              ) : (
+                <FormEntriesTable
+                  submissions={allSubmissions}
+                  fields={document?.fields ?? []}
+                  onSelect={openEntry}
+                  hasMore={Boolean(nextCursor)}
+                  isLoadingMore={isFetching}
+                  onLoadMore={nextCursor ? () => setCursor(nextCursor) : undefined}
+                />
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-      <EntryDetailSheet
-        submission={selectedSubmission}
-        fields={document?.fields ?? []}
-        open={sheetOpen}
-        onOpenChange={setSheetOpen}
-      />
+        <EntryDetailSheet
+          submission={selectedSubmission}
+          fields={document?.fields ?? []}
+          open={sheetOpen}
+          onOpenChange={setSheetOpen}
+        />
+
+      </div>
     </div>
   );
 }

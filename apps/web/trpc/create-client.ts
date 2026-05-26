@@ -13,6 +13,7 @@ export const createTRPCHttpBatchClientClient = (opts?: CreateTRPCHttpBatchClient
       return fetch(url, {
         ...options,
         credentials: "include",
+        signal: options?.signal ?? AbortSignal.timeout(30_000),
       });
     },
   });

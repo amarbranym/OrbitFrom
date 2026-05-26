@@ -6,9 +6,8 @@ import Link from "next/link";
 
 import type { FormDocument } from "@repo/form-schema";
 
-import { Button } from "~/components/ui/button";
-import { ThemedFormShell } from "~/components/forms/themed-form-shell";
-import { getThemePreset } from "~/lib/forms/themes/form-theme-presets";
+import { ThemedFormPreview } from "~/components/builder/theme-preview/themed-form-preview";
+import { resolveDocumentTheme } from "~/lib/forms/themes/form-theme-presets";
 import { cn } from "~/lib/utils";
 
 type FormThankYouProps = {
@@ -18,15 +17,15 @@ type FormThankYouProps = {
 };
 
 export function FormThankYou({ document, message, className }: FormThankYouProps) {
-  const preset = getThemePreset(document.theme.preset);
-  const primary = document.theme.primaryColor ?? preset.primaryColor;
+  const theme = resolveDocumentTheme(document);
+  const primary = theme.primaryColor;
   const thankYouMessage =
     message?.trim() || document.settings?.thankYouMessage?.trim() || "Thanks for your response!";
 
   return (
-    <ThemedFormShell document={document} className={cn("text-center", className)}>
+    <ThemedFormPreview document={document} theme={theme} viewport="desktop" fullHeight>
       <motion.div
-        className="flex flex-col items-center gap-6 py-4 md:py-8"
+        className={cn("flex flex-col items-center gap-6 py-4 text-center md:py-8", className)}
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
@@ -45,31 +44,41 @@ export function FormThankYou({ document, message, className }: FormThankYouProps
         </motion.div>
 
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          <p
+            className="text-xs font-semibold uppercase tracking-[0.2em]"
+            style={{ color: theme.mutedTextColor }}
+          >
             Submission received
           </p>
-          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{document.title}</h1>
-          <p className="mx-auto max-w-md text-base leading-relaxed text-muted-foreground">
+          <p className="text-base leading-relaxed" style={{ color: theme.mutedTextColor }}>
             {thankYouMessage}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-          <Button
-            asChild
+          <Link
+            href="/explore"
+            className="inline-flex h-10 items-center justify-center rounded-md px-6 text-sm font-medium shadow-sm transition-opacity hover:opacity-90"
             style={{
               backgroundColor: primary,
-              color: "white",
+              color: theme.buttonTextColor,
+              borderRadius: theme.buttonRadius,
             }}
-            className="border-0 shadow-sm hover:opacity-90"
           >
-            <Link href="/explore">Explore more forms</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href={`/f/${document.slug}`}>Submit another response</Link>
-          </Button>
+            Explore more forms
+          </Link>
+          <Link
+            href={`/f/${document.slug}`}
+            className="inline-flex h-10 items-center justify-center rounded-md border px-6 text-sm font-medium transition-colors hover:opacity-90"
+            style={{
+              borderColor: `color-mix(in srgb, ${primary} 35%, transparent)`,
+              color: theme.textColor,
+            }}
+          >
+            Submit another response
+          </Link>
         </div>
       </motion.div>
-    </ThemedFormShell>
+    </ThemedFormPreview>
   );
 }

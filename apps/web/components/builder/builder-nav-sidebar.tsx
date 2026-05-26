@@ -39,7 +39,7 @@ export function BuilderNavSidebar() {
                   onClick={() => setShareOpen(true)}
                   className={cn(
                     "relative flex flex-col items-center gap-1 px-2 py-4 text-xs font-medium leading-tight transition-colors",
-                    "text-sidebar-foreground hover:bg-primary/10 hover:text-sidebar-foreground",
+                    "text-sidebar-foreground hover:bg-accent/10 hover:text-sidebar-foreground",
                   )}
                 >
                   <item.icon className="size-5 shrink-0" stroke={1.5} aria-hidden />
@@ -56,8 +56,8 @@ export function BuilderNavSidebar() {
                 className={cn(
                   "relative flex flex-col items-center gap-1 px-2 py-4 text-xs font-medium leading-tight transition-colors",
                   isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "text-sidebar-foreground hover:bg-primary/10 hover:text-sidebar-foreground",
+                    ? "bg-accent/50 text-primary-foreground"
+                    : "text-sidebar-foreground hover:bg-accent/30 hover:text-sidebar-foreground",
                 )}
               >
                 {isActive ? (

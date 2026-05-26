@@ -1,25 +1,35 @@
 "use client";
 
+import type { FormDocument } from "@repo/form-schema";
 import {
   IconDeviceDesktop,
   IconDeviceMobile,
   IconDeviceTablet,
   IconX,
 } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { useBuilderEditor } from "~/components/builder/builder-editor-context";
 import { DevicePreviewFrame } from "~/components/builder/theme-preview/device-preview-frame";
 import { ThemeSelectorPanel } from "~/components/builder/theme-preview/theme-selector-panel";
 import { ThemedFormPreview } from "~/components/builder/theme-preview/themed-form-preview";
 import { Button } from "~/components/ui/button";
+import { createEmptyDocument } from "~/lib/forms/create-document";
+import type { FormTemplate } from "~/lib/forms/template-gallery-data";
+import { getTemplateDefinition } from "~/lib/forms/template-fields";
 import {
   FORM_THEME_PRESETS,
   getThemePreset,
-  getDocumentThemePreset,
   type ThemePreviewViewport,
 } from "~/lib/forms/themes/form-theme-presets";
 import { cn } from "~/lib/utils";
+
+type TemplatePreviewDialogProps = {
+  template: FormTemplate | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onUseTemplate: (templateId: string, themePresetId?: string) => void;
+  isCreating: boolean;
+};
 
 const viewportOptions: {
   id: ThemePreviewViewport;
@@ -31,47 +41,51 @@ const viewportOptions: {
   { id: "mobile", label: "Mobile", icon: IconDeviceMobile },
 ];
 
-export function ThemePreviewDialog() {
-  const {
-    document,
-    isThemePreviewOpen,
-    themePreviewPresetId,
-    closeThemePreview,
-    applyTheme,
-  } = useBuilderEditor();
-
-  const appliedPreset = getDocumentThemePreset(document);
-  const [selectedId, setSelectedId] = useState(appliedPreset.id);
+export function TemplatePreviewDialog({
+  template,
+  open,
+  onOpenChange,
+  onUseTemplate,
+  isCreating,
+}: TemplatePreviewDialogProps) {
   const [viewport, setViewport] = useState<ThemePreviewViewport>("desktop");
-  const [isApplying, setIsApplying] = useState(false);
+  const [selectedThemeId, setSelectedThemeId] = useState("default");
 
   useEffect(() => {
-    if (isThemePreviewOpen) {
-      const initialId = themePreviewPresetId ?? getDocumentThemePreset(document).id;
-      setSelectedId(initialId);
+    if (open) {
       setViewport("desktop");
+      setSelectedThemeId("default");
     }
-  }, [isThemePreviewOpen, themePreviewPresetId, document.theme?.preset]);
+  }, [open, template?.id]);
 
-  if (!isThemePreviewOpen) return null;
+  const previewDocument = useMemo<FormDocument | null>(() => {
+    if (!template) return null;
 
-  const selectedTheme = getThemePreset(selectedId);
+    const definition = getTemplateDefinition(template.id);
+    const document = createEmptyDocument(definition.title);
 
-  const handleApply = () => {
-    setIsApplying(true);
-    void applyTheme(selectedId)
-      .then(() => closeThemePreview())
-      .finally(() => setIsApplying(false));
-  };
+    return {
+      ...document,
+      title: definition.title,
+      description: definition.description,
+      fields: definition.fields,
+    };
+  }, [template]);
+
+  if (!open || !template || !previewDocument) return null;
+
+  const selectedTheme = getThemePreset(selectedThemeId);
 
   return (
     <div
-      className="fixed inset-0 z-100 flex flex-col bg-muted/80 backdrop-blur-[2px]"
-      data-viewport={viewport}
+      className="pointer-events-auto fixed inset-0 z-120 flex flex-col bg-muted/80 backdrop-blur-[2px]"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${template.name} template preview`}
     >
       <header className="flex h-12 shrink-0 items-center justify-between border-b border-border/60 bg-card px-3 text-foreground shadow-sm sm:px-4">
         <p className="min-w-0 truncate text-sm font-medium">
-          {selectedTheme.name}{" "}
+          {template.name}{" "}
           <span className="font-normal text-muted-foreground">(Preview)</span>
         </p>
 
@@ -103,15 +117,20 @@ export function ThemePreviewDialog() {
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-          <Button type="button" size="sm" onClick={handleApply} disabled={isApplying}>
-            {isApplying ? "Saving…" : "Apply Theme"}
+          <Button
+            type="button"
+            size="sm"
+            disabled={isCreating}
+            onClick={() => onUseTemplate(template.id, selectedThemeId)}
+          >
+            {isCreating ? "Creating…" : "Use Template"}
           </Button>
           <Button
             type="button"
             variant="ghost"
             size="icon"
             className="text-muted-foreground hover:text-foreground"
-            onClick={closeThemePreview}
+            onClick={() => onOpenChange(false)}
             aria-label="Close preview"
           >
             <IconX className="size-5" />
@@ -129,7 +148,7 @@ export function ThemePreviewDialog() {
           <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
             <DevicePreviewFrame viewport={viewport}>
               <ThemedFormPreview
-                document={document}
+                document={previewDocument}
                 theme={selectedTheme}
                 viewport={viewport}
               />
@@ -139,8 +158,8 @@ export function ThemePreviewDialog() {
 
         <ThemeSelectorPanel
           themes={FORM_THEME_PRESETS}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
+          selectedId={selectedThemeId}
+          onSelect={setSelectedThemeId}
         />
       </div>
     </div>

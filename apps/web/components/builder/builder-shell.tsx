@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
+import { usePathname } from "next/navigation";
 
 import { BuilderEditorProvider } from "~/components/builder/builder-editor-context";
 import { BuilderFormProvider } from "~/components/builder/builder-form-context";
@@ -10,6 +11,7 @@ import { FieldPropertiesDrawer } from "~/components/builder/properties/field-pro
 import { FormPropertiesDrawer } from "~/components/builder/properties/form-properties-drawer";
 import { ThemePreviewDialog } from "~/components/builder/theme-preview/theme-preview-dialog";
 import { BuilderTopbar } from "~/components/builder/builder-topbar";
+import { BuilderFieldPanel } from "./builder-field-panel";
 
 type BuilderShellProps = {
   formId: string;
@@ -17,15 +19,20 @@ type BuilderShellProps = {
 };
 
 function BuilderShellContent({ formId, children }: BuilderShellProps) {
+  const pathname = usePathname();
+  const showFieldPanel = /^\/dashboard\/builder\/[^/]+$/.test(pathname);
+
   return (
     <BuilderFormProvider formId={formId}>
       <BuilderEditorProvider>
         <BuilderUnsavedGuard>
           <div className="flex h-dvh flex-col overflow-hidden bg-background">
-            <BuilderTopbar />
             <div className="flex min-h-0 flex-1">
               <BuilderNavSidebar />
-              <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
+              {showFieldPanel ? <BuilderFieldPanel /> : null}
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+                <BuilderTopbar />
+                {children}</div>
             </div>
             <FieldPropertiesDrawer />
             <FormPropertiesDrawer />

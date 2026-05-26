@@ -12,6 +12,7 @@ type ThemeGalleryCardProps = {
   selected: boolean;
   onApply: () => void;
   onPreview: () => void;
+  disabled?: boolean;
 };
 
 export function ThemeGalleryCard({
@@ -19,6 +20,7 @@ export function ThemeGalleryCard({
   selected,
   onApply,
   onPreview,
+  disabled = false,
 }: ThemeGalleryCardProps) {
   return (
     <article className="group flex w-full flex-col bg-white p-4 rounded-2xl duration-500 hover:scale-105">
@@ -52,12 +54,13 @@ export function ThemeGalleryCard({
             type="button"
             size="sm"
             className="min-w-[72px] shadow-md"
+            disabled={disabled}
             onClick={(event) => {
               event.stopPropagation();
               onApply();
             }}
           >
-            Apply
+            {disabled ? "Saving…" : "Apply"}
           </Button>
           <Button
             type="button"

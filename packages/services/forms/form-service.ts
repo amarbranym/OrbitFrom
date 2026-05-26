@@ -30,6 +30,25 @@ function defaultSettings() {
   };
 }
 
+function mapFieldsToAvailablePages(
+  fields: FormDocument["fields"],
+  settings: ReturnType<typeof defaultSettings>,
+): FormDocument["fields"] {
+  const pages = settings.pages;
+  if (!pages?.length) return fields;
+
+  const availablePageIds = new Set(pages.map((page) => page.id));
+  const fallbackPageId = pages[0]!.id;
+
+  return fields.map((field) => ({
+    ...field,
+    pageId:
+      field.pageId && availablePageIds.has(field.pageId)
+        ? field.pageId
+        : fallbackPageId,
+  }));
+}
+
 export class FormService {
   private async findById(id: string): Promise<SelectForm | null> {
     const rows = await db.select().from(formsTable).where(eq(formsTable.id, id)).limit(1);
@@ -166,6 +185,8 @@ export class FormService {
     const title = input.title.trim() || "Untitled form";
     const baseSlug = slugifyTitle(input.slug ?? title);
     const slug = await this.ensureUniqueSlug(baseSlug);
+    const settings = defaultSettings();
+    const mappedFields = mapFieldsToAvailablePages(input.fields ?? [], settings);
 
     const draft: FormDocument = formDocumentSchema.parse({
       id: createFieldId(),
@@ -176,8 +197,8 @@ export class FormService {
       visibility: input.visibility ?? "unlisted",
       presentationMode: "classic",
       theme: input.theme ?? defaultTheme(),
-      fields: input.fields ?? [],
-      settings: defaultSettings(),
+      fields: mappedFields,
+      settings,
       updatedAt: new Date().toISOString(),
     });
 

@@ -4,6 +4,8 @@ import { IconSearch } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { TemplateCard } from "~/components/forms/template-card";
+import { TemplatePreviewDialog } from "./template-preview-dialog";
+import { useCreateFormFromTemplate } from "~/hooks/use-create-form-from-template";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +31,23 @@ type TemplateGalleryDialogProps = {
 export function TemplateGalleryDialog({ open, onOpenChange }: TemplateGalleryDialogProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<TemplateCategoryId>("all");
+  const [creatingTemplateId, setCreatingTemplateId] = useState<string | null>(null);
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
+
+  const handleClose = () => onOpenChange?.(false);
+
+  const { createFromTemplate, isPending } = useCreateFormFromTemplate({
+    onSuccess: handleClose,
+  });
+
+  const handleUseTemplate = (templateId: string, themePresetId?: string) => {
+    setCreatingTemplateId(templateId);
+    createFromTemplate(templateId, themePresetId);
+  };
+
+  const handlePreviewTemplate = (templateId: string) => {
+    setPreviewTemplateId(templateId);
+  };
 
   const filteredTemplates = useMemo(
     () => filterTemplates(formTemplates, activeCategory, searchQuery),
@@ -40,12 +59,15 @@ export function TemplateGalleryDialog({ open, onOpenChange }: TemplateGalleryDia
     [filteredTemplates],
   );
 
-  const handleClose = () => onOpenChange?.(false);
+  const previewTemplate =
+    formTemplates.find((template) => template.id === previewTemplateId) ?? null;
 
   useEffect(() => {
     if (!open) {
       setSearchQuery("");
       setActiveCategory("all");
+      setCreatingTemplateId(null);
+      setPreviewTemplateId(null);
     }
   }, [open]);
 
@@ -55,14 +77,14 @@ export function TemplateGalleryDialog({ open, onOpenChange }: TemplateGalleryDia
         showCloseButton
         className="fixed inset-0 z-50 flex h-dvh w-screen max-h-none max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-none border-0 p-0 ring-0 sm:max-w-none"
       >
-        <DialogHeader className="relative shrink-0 space-y-4 overflow-hidden border-b border-border/60 bg-gradient-to-br from-primary/15 via-accent to-chart-2/15 px-6 pb-6 pt-8 text-center sm:px-10">
+        <DialogHeader className="relative shrink-0 space-y-4 overflow-hidden border-b border-border/60 bg-linear-to-br from-primary/15 via-accent to-chart-2/15 px-6 pb-6 pt-8 text-center sm:px-10">
           <DialogTitle className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
             Template Gallery
           </DialogTitle>
 
           <div className="relative mx-auto w-full max-w-xl">
             <IconSearch
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden
             />
             <Input
@@ -70,14 +92,14 @@ export function TemplateGalleryDialog({ open, onOpenChange }: TemplateGalleryDia
               placeholder="Search templates"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              className="h-11 rounded-full border-border/60 bg-background/90 pl-10 shadow-xs backdrop-blur-sm"
+              className="h-11 rounded-full border-border bg-background/90 pl-10 shadow-xs backdrop-blur-sm"
             />
           </div>
         </DialogHeader>
 
         <div className="flex min-h-0 flex-1">
           <aside className="hidden w-64 shrink-0 border-r border-border/60 bg-muted/20 p-4 sm:block">
-            <p className="mb-3 px-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+            <p className="mb-3 px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Categories
             </p>
             <nav className="space-y-1">
@@ -142,7 +164,13 @@ export function TemplateGalleryDialog({ open, onOpenChange }: TemplateGalleryDia
                     <h2 className="mb-4 text-base font-semibold text-foreground">{sectionLabel}</h2>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                       {templates.map((template) => (
-                        <TemplateCard key={template.id} template={template} onUse={handleClose} />
+                        <TemplateCard
+                          key={template.id}
+                          template={template}
+                          onPreviewTemplate={handlePreviewTemplate}
+                          onUseTemplate={(templateId) => handleUseTemplate(templateId)}
+                          isCreating={isPending && creatingTemplateId === template.id}
+                        />
                       ))}
                     </div>
                   </section>
@@ -151,6 +179,15 @@ export function TemplateGalleryDialog({ open, onOpenChange }: TemplateGalleryDia
             </div>
           </ScrollArea>
         </div>
+        <TemplatePreviewDialog
+          template={previewTemplate}
+          open={!!previewTemplate}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) setPreviewTemplateId(null);
+          }}
+          onUseTemplate={handleUseTemplate}
+          isCreating={isPending}
+        />
       </DialogContent>
     </Dialog>
   );

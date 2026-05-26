@@ -6,6 +6,7 @@
     "dev": "dotenv -- turbo dev --filter=web --filter=@repo/api",
     "db:generate": "dotenv -- turbo db:generate",
     "db:migrate": "dotenv -- turbo db:migrate",
+    "db:check": "dotenv -- pnpm --filter @repo/database exec tsx scripts/test-db.ts",
     "db:seed": "dotenv -- turbo db:seed",
     "setup": "pnpm db:migrate",
     "lint": "turbo run lint",

@@ -3,16 +3,28 @@ import { resolve } from "node:path";
 import { config } from "dotenv";
 import { z } from "zod";
 
-const envPaths = [
-  resolve(process.cwd(), ".env"),
-  resolve(process.cwd(), "../../.env"),
-];
-
-for (const envPath of envPaths) {
-  if (existsSync(envPath)) {
-    config({ path: envPath });
-    if (process.env.DATABASE_URL) break;
+function findMonorepoRoot(startDir: string): string {
+  let dir = startDir;
+  for (let i = 0; i < 12; i += 1) {
+    if (existsSync(resolve(dir, "pnpm-workspace.yaml"))) {
+      return dir;
+    }
+    const parent = resolve(dir, "..");
+    if (parent === dir) break;
+    dir = parent;
   }
+  return startDir;
+}
+
+const repoRoot = findMonorepoRoot(process.cwd());
+const rootEnvPath = resolve(repoRoot, ".env");
+const cwdEnvPath = resolve(process.cwd(), ".env");
+
+// Prefer repo root .env so apps/api does not use a stale local DATABASE_URL.
+if (existsSync(rootEnvPath)) {
+  config({ path: rootEnvPath });
+} else if (existsSync(cwdEnvPath)) {
+  config({ path: cwdEnvPath });
 }
 
 const envSchema = z.object({

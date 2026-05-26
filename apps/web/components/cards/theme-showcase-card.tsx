@@ -43,7 +43,7 @@ export function ThemeShowcaseCard({
   onPreview,
 }: ThemeShowcaseCardProps) {
   return (
-    <article className={cn("group flex h-full min-h-0 flex-col", className)}>
+    <article className={cn("group flex h-full min-h-0 flex-col bg-white p-4 rounded-2xl", className)}>
       <div
         className={cn(
           "relative flex-1 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm",

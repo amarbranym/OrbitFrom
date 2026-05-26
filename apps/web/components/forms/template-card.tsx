@@ -1,7 +1,6 @@
 "use client";
 
 import { IconEye } from "@tabler/icons-react";
-import Link from "next/link";
 
 import { Button } from "~/components/ui/button";
 import type { FormTemplate, TemplatePreviewVariant } from "~/lib/forms/template-gallery-data";
@@ -18,13 +17,25 @@ const previewHeaderClasses: Record<TemplatePreviewVariant, string> = {
 
 type TemplateCardProps = {
   template: FormTemplate;
-  onUse?: () => void;
+  onPreviewTemplate?: (templateId: string) => void;
+  onUseTemplate?: (templateId: string) => void;
+  isCreating?: boolean;
 };
 
-export function TemplateCard({ template, onUse }: TemplateCardProps) {
+export function TemplateCard({
+  template,
+  onPreviewTemplate,
+  onUseTemplate,
+  isCreating = false,
+}: TemplateCardProps) {
+  const handleUse = () => {
+    if (isCreating) return;
+    onUseTemplate?.(template.id);
+  };
+
   return (
     <article className="group overflow-hidden rounded-xl border border-border/60 bg-card shadow-xs transition-shadow hover:shadow-md">
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-4/3 overflow-hidden">
         <TemplatePreview template={template} />
 
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-foreground/40 opacity-0 backdrop-blur-[2px] transition-opacity group-hover:opacity-100">
@@ -32,28 +43,27 @@ export function TemplateCard({ template, onUse }: TemplateCardProps) {
             type="button"
             size="sm"
             className="min-w-28 bg-chart-2 text-primary-foreground hover:bg-chart-2/90"
-            asChild
+            disabled={isCreating}
+            onClick={() => onPreviewTemplate?.(template.id)}
           >
-            <Link href={`/dashboard/builder/new?template=${template.id}`} onClick={onUse}>
-              <IconEye className="size-4" />
-              Preview
-            </Link>
+            <IconEye className="size-4" />
+            Preview
           </Button>
           <Button
             type="button"
             size="sm"
             className="min-w-28 bg-primary text-primary-foreground hover:bg-primary/90"
-            asChild
+            disabled={isCreating}
+            onClick={handleUse}
           >
-            <Link href={`/dashboard/builder/new?template=${template.id}`} onClick={onUse}>
-              Use
-            </Link>
+            {isCreating ? "Creating…" : "Use"}
           </Button>
         </div>
       </div>
 
-      <div className="border-t border-border/60 px-4 py-3">
+      <div className="space-y-1 border-t border-border/60 px-4 py-3">
         <h3 className="text-sm font-medium text-foreground">{template.name}</h3>
+        <p className="line-clamp-2 text-xs text-muted-foreground">{template.description}</p>
       </div>
     </article>
   );

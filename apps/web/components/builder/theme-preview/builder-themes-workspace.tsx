@@ -1,32 +1,28 @@
 "use client";
 
-import { useMemo } from "react";
-import { toast } from "sonner";
+import { useMemo, useState } from "react";
 
 import { useBuilderEditor } from "~/components/builder/builder-editor-context";
 import { ThemeGalleryCard } from "~/components/builder/theme-preview/theme-gallery-card";
-import {
-  FORM_THEME_PRESETS,
-  getThemePreset,
-  themePresetToDocumentTheme,
-} from "~/lib/forms/themes/form-theme-presets";
+import { FORM_THEME_PRESETS } from "~/lib/forms/themes/form-theme-presets";
 
 export function BuilderThemesWorkspace() {
-  const { document, updateDocument, openThemePreview } = useBuilderEditor();
+  const { document, applyTheme, openThemePreview } = useBuilderEditor();
+  const [applyingId, setApplyingId] = useState<string | null>(null);
 
   const filteredThemes = useMemo(() => FORM_THEME_PRESETS, []);
 
   const handleApplyTheme = (id: string) => {
-    const preset = getThemePreset(id);
-    updateDocument({ theme: themePresetToDocumentTheme(preset) });
-    toast.success(`${preset.name} theme applied`);
+    setApplyingId(id);
+    void applyTheme(id).finally(() => setApplyingId(null));
   };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-auto">
-      <div className="px-5 py-5 sm:px-6 sm:py-6 lg:px-8">
+      <div className="px-5 py-5 sm:px-6 sm:py-6 lg:px-8  ">
         <p className="text-sm font-normal text-foreground">
-          Choose a pre-designed theme for your form.
+          Choose a pre-designed theme for your form. Themes save automatically and appear on
+          your shared link.
         </p>
 
         <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:gap-6">
@@ -37,6 +33,7 @@ export function BuilderThemesWorkspace() {
               selected={document.theme.preset === theme.id}
               onApply={() => handleApplyTheme(theme.id)}
               onPreview={() => openThemePreview(theme.id)}
+              disabled={applyingId === theme.id}
             />
           ))}
         </div>

@@ -18,14 +18,30 @@ import { Form } from "~/components/ui/form";
 import type { FormThemePreset } from "~/lib/forms/themes/form-theme-presets";
 import { cn } from "~/lib/utils";
 
+type ThemedStepperLiveConfig = {
+  onSubmit: (
+    values: Record<string, unknown>,
+    meta?: { honeypot?: string },
+  ) => void | Promise<void>;
+  showHoneypot?: boolean;
+  submitLabel?: string;
+};
+
 type ThemedStepperPreviewProps = {
   document: FormDocument;
   theme: FormThemePreset;
   compact: boolean;
+  live?: ThemedStepperLiveConfig;
 };
 
-export function ThemedStepperPreview({ document, theme, compact }: ThemedStepperPreviewProps) {
-  const submitLabel = getSubmitButtonLabel(document, theme.submitLabel);
+export function ThemedStepperPreview({
+  document,
+  theme,
+  compact,
+  live,
+}: ThemedStepperPreviewProps) {
+  const submitLabel =
+    live?.submitLabel ?? getSubmitButtonLabel(document, theme.submitLabel);
   const pages = useMemo(() => getFormPages(document), [document]);
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -42,9 +58,15 @@ export function ThemedStepperPreview({ document, theme, compact }: ThemedStepper
   );
 
   const zodSchema = useMemo(() => buildZodSchema(allFields), [fieldsVersion]);
-  const defaultValues = useMemo(() => buildDefaultValues(allFields), [fieldsVersion]);
+  const defaultValues = useMemo(
+    () => ({
+      ...buildDefaultValues(allFields),
+      ...(live?.showHoneypot ? { _honeypot: "" } : {}),
+    }),
+    [fieldsVersion, live?.showHoneypot],
+  );
 
-  const form = useForm<Record<string, unknown>>({
+  const form = useForm<Record<string, unknown> & { _honeypot?: string }>({
     resolver: zodResolver(zodSchema),
     defaultValues,
     mode: "onTouched",
@@ -64,18 +86,33 @@ export function ThemedStepperPreview({ document, theme, compact }: ThemedStepper
   };
 
   const buttonClass = cn(
-    "font-semibold shadow-md transition-opacity hover:opacity-90",
+    "font-semibold shadow-md transition-opacity hover:opacity-90 disabled:opacity-70",
     compact ? "px-6 py-2 text-xs" : "px-8 py-2.5 text-sm",
   );
 
+  const handleSubmit = live
+    ? form.handleSubmit(async (values) => {
+        const { _honeypot, ...answers } = values;
+        await live.onSubmit(answers, { honeypot: _honeypot });
+      })
+    : form.handleSubmit(() => {
+        /* preview only */
+      });
+
   return (
     <Form {...form} key={fieldsVersion}>
-      <form
-        onSubmit={form.handleSubmit(() => {
-          /* preview only */
-        })}
-        className={cn(compact ? "space-y-4" : "space-y-6")}
-      >
+      <form onSubmit={handleSubmit} className={cn(compact ? "space-y-4" : "space-y-6")}>
+        {live?.showHoneypot ? (
+          <input
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden
+            className="pointer-events-none absolute h-0 w-0 opacity-0"
+            {...form.register("_honeypot")}
+          />
+        ) : null}
+
         <FormStepper
           pages={pages}
           currentIndex={currentStep}
@@ -108,6 +145,7 @@ export function ThemedStepperPreview({ document, theme, compact }: ThemedStepper
             <button
               type="submit"
               className={buttonClass}
+              disabled={live?.submitLabel?.endsWith("…")}
               style={{
                 backgroundColor: theme.primaryColor,
                 color: theme.buttonTextColor,

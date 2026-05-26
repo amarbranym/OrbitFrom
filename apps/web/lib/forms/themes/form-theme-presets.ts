@@ -247,6 +247,16 @@ export function getDocumentThemePreset(document: FormDocument) {
   return getThemePreset(document.theme?.preset ?? "default");
 }
 
+/** Preset plus any per-form color overrides saved in the builder. */
+export function resolveDocumentTheme(document: FormDocument): FormThemePreset {
+  const preset = getDocumentThemePreset(document);
+  return {
+    ...preset,
+    primaryColor: document.theme.primaryColor ?? preset.primaryColor,
+    backgroundColor: document.theme.backgroundColor ?? preset.backgroundColor,
+  };
+}
+
 export type ViewportLayoutConfig = {
   /** Outer device frame max width */
   frameMaxWidth: string;

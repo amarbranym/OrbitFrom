@@ -1,3 +1,5 @@
+import "./preload-env";
+
 import http from "node:http";
 import { logger } from "@repo/logger";
 import { app as expressApplication } from "./server";
