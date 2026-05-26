@@ -44,10 +44,12 @@ const submitRateLimiter = rateLimit({
 });
 
 const webOrigin = process.env.WEB_URL ?? "http://localhost:3000";
+const isProduction =
+  env.NODE_ENV === "prod" || env.NODE_ENV === "production";
 
 app.use(
   cors({
-    origin: env.NODE_ENV === "prod" ? webOrigin : [webOrigin, "http://localhost:3000"],
+    origin: isProduction ? webOrigin : [webOrigin, "http://localhost:3000"],
     credentials: true,
   }),
 );
