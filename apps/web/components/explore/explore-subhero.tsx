@@ -24,9 +24,9 @@ export function ExploreSubhero({
   ];
 
   return (
-    <SectionWrapper className={className ?? "border-y border-primary/15 bg-primary py-10 md:py-12"}>
-      <Container>
-        <ul className="grid grid-cols-3 gap-6 md:gap-8">
+    <SectionWrapper className={className ?? ""}>
+      <Container >
+        <ul className="grid grid-cols-3  bg-primary rounded-2xl  py-20 divide-x divide-background/20">
           {stats.map((stat) => (
             <li key={stat.label} className="text-center">
               <p className="text-2xl font-semibold tracking-tight text-primary-foreground md:text-3xl">

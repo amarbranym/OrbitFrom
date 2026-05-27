@@ -60,7 +60,7 @@ export function MarketingHero({
     <section
       id={id}
       className={cn(
-        "relative overflow-hidden bg-background pt-28 pb-16 text-foreground md:pt-32 md:pb-20 lg:pb-24",
+        "relative overflow-hidden bg-background pt-28 pb-16 text-foreground md:pt-32 md:py-40",
         className,
       )}
     >
