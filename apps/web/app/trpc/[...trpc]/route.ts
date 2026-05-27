@@ -73,9 +73,15 @@ async function handleProxy(request: NextRequest) {
   // Create the NextResponse object
   const responseHeaders = new Headers();
 
-  // Copy all headers from the backend API response except Set-Cookie
+  // Copy all headers from the backend API response except Set-Cookie and body-related encoding/length headers
   apiResponse.headers.forEach((value, key) => {
-    if (key.toLowerCase() !== "set-cookie") {
+    const keyLower = key.toLowerCase();
+    if (
+      keyLower !== "set-cookie" &&
+      keyLower !== "content-encoding" &&
+      keyLower !== "content-length" &&
+      keyLower !== "transfer-encoding"
+    ) {
       responseHeaders.append(key, value);
     }
   });
