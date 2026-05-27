@@ -60,13 +60,12 @@ const features: Feature[] = [
 
 export function FeaturesSection() {
   return (
-    <SectionWrapper id="features" aria-labelledby="features-heading">
+    <SectionWrapper id="features" aria-labelledby="features-heading" className="bg-background" >
       <Container>
         <SectionHeading
           id="features-heading"
-          eyebrow="Features"
-          title="Everything you need to <span class='text-primary'>ship forms</span>"
-          description="OrbitForm combines a Typeform-style experience with the controls product teams expect."
+          title="Core features"
+          description="Everything you need to build, customize, and analyze conversational forms."
           align="center"
         />
 
@@ -77,11 +76,11 @@ export function FeaturesSection() {
               <article
                 key={feature.title}
                 className={cn(
-                  "group rounded-2xl border border-border/60 bg-card p-6 shadow-sm transition-all",
-                  "hover:border-primary/30 hover:shadow-md hover:shadow-primary/5",
+                  "group rounded-2xl border border-border/60 bg-card p-6 shadow-sm transition-all"
+                  ,
                 )}
               >
-                <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                <span className="flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-colors ">
                   <Icon className="size-5" stroke={1.75} />
                 </span>
                 <h3 className="mt-4 text-lg font-semibold tracking-tight">{feature.title}</h3>

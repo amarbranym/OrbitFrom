@@ -41,9 +41,8 @@ export function WorkProcessSection() {
         <SectionHeading
           id="work-process-heading"
           background="primary"
-          eyebrow="How it works"
-          title="From blank page to <span class='text-accent'>live form</span>"
-          description="A focused four-step flow so you spend less time on tooling and more time on better questions."
+          title="How it works"
+          description="Build, design, publish, and track your forms in a seamless four-step workflow."
           align="center"
         />
 

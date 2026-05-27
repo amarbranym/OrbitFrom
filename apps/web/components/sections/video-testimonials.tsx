@@ -147,8 +147,8 @@ export const VideoTestimonialSection = () => {
       <Container>
         <SectionHeading
           id="video-testimonials-heading"
-          title={"Learn with <span class='text-primary'>India's dev creators</span>"}
-          description="Shorts from Chai aur Code and Piyush Garg — tap any card to watch in the carousel."
+          title="Creator testimonials"
+          description="See what developer creators are saying about building with our platform."
           align="center"
         />
         <VideoTestimonialCarousel testimonials={videoTestimonials} />

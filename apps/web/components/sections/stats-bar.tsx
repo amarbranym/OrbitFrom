@@ -10,15 +10,15 @@ const stats = [
 
 export function StatsBarSection() {
   return (
-    <SectionWrapper className="border-y border-primary/15 bg-primary py-10 md:py-12">
-      <Container>
-        <ul className="grid grid-cols-2 gap-8 md:grid-cols-4">
+    <SectionWrapper >
+      <Container >
+        <ul className="grid grid-cols-2  md:grid-cols-4 bg-primary rounded-2xl py-20 divide-x divide-primary-foreground/50 ">
           {stats.map((stat) => (
             <li key={stat.label} className="text-center">
-              <p className="text-2xl font-semibold tracking-tight text-primary-foreground md:text-3xl">
+              <p className=" text-2xl md:text-3xl font-semibold tracking-tight text-primary-foreground lg:text-5xl">
                 {stat.value}
               </p>
-              <p className="mt-1.5 text-sm text-primary-foreground/75">{stat.label}</p>
+              <p className="mt-4 text-sm text-primary-foreground/75">{stat.label}</p>
             </li>
           ))}
         </ul>

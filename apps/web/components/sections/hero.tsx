@@ -80,11 +80,7 @@ export function HeroWithMockup({
                         <Button
                             asChild
                             size="lg"
-                            className={cn(
-                                "bg-gradient-to-b from-primary to-primary/90 text-primary-foreground shadow-lg",
-                                "hover:from-primary/95 hover:to-primary/80",
-                                "transition-all duration-300",
-                            )}
+                            className="px-4"
                         >
                             {isExternalHref(primaryCta.href) ? (
                                 <a href={primaryCta.href} target="_blank" rel="noopener noreferrer">
@@ -99,6 +95,7 @@ export function HeroWithMockup({
                             asChild
                             size="lg"
                             variant="ghost"
+                            className="group px-4"
                         >
                             {isExternalHref(secondaryCta.href) ? (
                                 <a
@@ -113,7 +110,7 @@ export function HeroWithMockup({
                             ) : (
                                 <Link href={secondaryCta.href} className="inline-flex items-center gap-2">
                                     {secondaryCta.text}
-                                    {secondaryCta.icon ?? <ArrowRight className="size-4" />}
+                                    {secondaryCta.icon ?? <ArrowRight className="size-4 group-hover:translate-x-2 transition-all duration-500" />}
                                 </Link>
                             )}
                         </Button>

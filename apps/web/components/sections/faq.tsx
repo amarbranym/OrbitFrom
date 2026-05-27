@@ -47,16 +47,15 @@ export function FaqSection() {
       <Container >
         <SectionHeading
           id="faq-heading"
-          eyebrow="FAQ"
           align="center"
-          title="Frequently asked <span class='text-primary'>questions</span>"
+          title="Frequently asked questions"
           description="Quick answers about building, theming, and collecting responses with OrbitForm."
         />
 
         <Accordion
           type="single"
           collapsible
-          className="mt-10 w-full overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm"
+          className="mt-10 w-full overflow-hidden rounded-2xl border border-border/60 bg-card "
         >
           {questions.map((item, index) => (
             <AccordionItem

@@ -82,7 +82,7 @@ export function SectionHeading({
       <HeadingTag
         id={id}
         className={cn(
-          "mt-4 text-balance text-3xl font-semibold tracking-tight md:text-4xl lg:text-5xl",
+          "text-3xl   md:text-4xl lg:text-5xl tracking-tight ",
           colors.title,
         )}
         dangerouslySetInnerHTML={{ __html: title }}

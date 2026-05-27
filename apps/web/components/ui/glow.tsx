@@ -19,10 +19,10 @@ const glowVariants = cva("absolute w-full", {
 });
 
 const glowOuterClass =
-  "absolute left-1/2 h-[256px] w-[60%] -translate-x-1/2 scale-[2.5] rounded-[50%] sm:h-[512px] bg-[radial-gradient(ellipse_at_center,color-mix(in_oklch,var(--primary)_38%,transparent)_0%,transparent_70%)]";
+  "absolute left-1/2 h-[356px] w-[70%] -translate-x-1/2 scale-[2.5] rounded-[50%] sm:h-[512px] bg-[radial-gradient(ellipse_at_center,color-mix(in_oklch,var(--primary)_50%,transparent)_0%,transparent_70%)]";
 
 const glowInnerClass =
-  "absolute left-1/2 h-[128px] w-[40%] -translate-x-1/2 scale-[2] rounded-[50%] sm:h-[256px] bg-[radial-gradient(ellipse_at_center,color-mix(in_oklch,var(--primary)_55%,transparent)_0%,transparent_65%)]";
+  "absolute left-1/2 h-[128px] w-[60%] -translate-x-1/2 scale-[2] rounded-[50%] sm:h-[356px] bg-[radial-gradient(ellipse_at_center,color-mix(in_oklch,var(--primary)_55%,transparent)_0%,transparent_65%)]";
 
 const Glow = React.forwardRef<
   HTMLDivElement,

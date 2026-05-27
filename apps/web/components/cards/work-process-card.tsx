@@ -29,14 +29,14 @@ export default function WorkProcessCard({ item }: { item: ProcessStep }) {
     <article
       className={cn(
         "group relative rounded-2xl border border-primary-foreground/10 bg-primary-foreground/5 p-6",
-        "backdrop-blur-sm transition-colors hover:bg-primary-foreground/10",
+        "backdrop-blur-sm transition-colors ",
       )}
     >
       <div className="mb-5 flex items-center justify-between">
         <span className="font-mono text-xs font-semibold tracking-widest text-primary-foreground/70 uppercase">
           {item.step}
         </span>
-        <span className="inline-flex size-10 items-center justify-center rounded-xl bg-primary-foreground/15 text-primary-foreground transition-colors group-hover:bg-primary-foreground group-hover:text-primary">
+        <span className="inline-flex size-10 items-center justify-center rounded-xl bg-primary-foreground/15 text-primary-foreground transition-colors ">
           <Icon className="size-4" strokeWidth={1.75} />
         </span>
       </div>
