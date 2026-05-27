@@ -1,8 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "cd ../.. && pnpm install",
-  "buildCommand": "cd ../.. && pnpm turbo build --filter=@repo/api",
+  "installCommand": "pnpm install --prod=false",
+  "buildCommand": "pnpm build",
   "outputDirectory": "public",
   "rewrites": [
     {
