@@ -12,7 +12,8 @@ const format = isDevelopment
   ? winston.format.combine(
       winston.format.colorize(),
       winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-      winston.format.printf(({ timestamp, level, message, ...meta }) => {
+      winston.format.printf((info: winston.Logform.TransformableInfo) => {
+        const { timestamp, level, message, ...meta } = info;
         const metaString = Object.keys(meta).length
           ? `\n${JSON.stringify(meta, null, 2)}`
           : "";

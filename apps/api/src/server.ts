@@ -33,7 +33,7 @@ const submitRateLimiter = rateLimit({
   max: 15,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => {
+  keyGenerator: (req: express.Request) => {
     const forwarded = req.headers["x-forwarded-for"];
     const ip =
       typeof forwarded === "string"
@@ -110,21 +110,21 @@ app.options(/.*/, corsMiddleware);
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
+app.get("/", (_req: express.Request, res: express.Response) => {
   return res.json({ message: "OrbitForm API is running", docs: "/docs" });
 });
 
-app.get("/health", (req, res) => {
+app.get("/health", (_req: express.Request, res: express.Response) => {
   return res.json({ message: "OrbitForm API is healthy", healthy: true });
 });
 
 logger.debug(`openapi.json: ${env.BASE_URL}/openapi.json`);
-app.get("/openapi.json", (req, res) => {
+app.get("/openapi.json", (_req: express.Request, res: express.Response) => {
   return res.json(openApiDocument);
 });
 
 logger.debug(`docs: ${env.BASE_URL}/docs`);
-app.use("/docs", (req, res, next) => {
+app.use("/docs", (req: express.Request, res: express.Response, next: express.NextFunction) => {
   import("@scalar/express-api-reference")
     .then(({ apiReference }) => {
       apiReference({ url: "/openapi.json" })(req, res);

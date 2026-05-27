@@ -5,7 +5,9 @@ import { SESSION_COOKIE_NAME, SESSION_MAX_AGE_MS } from "@repo/auth/constants";
 
 const isProduction = process.env.NODE_ENV === "production";
 
-export function getSessionTokenFromRequest(req: IncomingMessage): string | null {
+export function getSessionTokenFromRequest(
+  req: Pick<IncomingMessage, "headers">,
+): string | null {
   const header = req.headers.cookie;
   if (!header) return null;
   const cookies = parse(header);
