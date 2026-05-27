@@ -67,6 +67,9 @@ async function handleProxy(request: NextRequest) {
     cache: "no-store",
   });
 
+  // Read response body as text to prevent early streaming and header sending issues
+  const responseText = await apiResponse.text();
+
   // Create the NextResponse object
   const responseHeaders = new Headers();
 
@@ -78,7 +81,7 @@ async function handleProxy(request: NextRequest) {
   });
 
   // Return the response with the backend's status, body and headers
-  const response = new NextResponse(apiResponse.body, {
+  const response = new NextResponse(responseText, {
     status: apiResponse.status,
     statusText: apiResponse.statusText,
     headers: responseHeaders,
