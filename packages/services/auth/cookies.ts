@@ -3,7 +3,8 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 
 import { SESSION_COOKIE_NAME, SESSION_MAX_AGE_MS } from "@repo/auth/constants";
 
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction =
+  process.env.NODE_ENV === "production" || process.env.NODE_ENV === "prod";
 
 export function getSessionTokenFromRequest(
   req: Pick<IncomingMessage, "headers">,
