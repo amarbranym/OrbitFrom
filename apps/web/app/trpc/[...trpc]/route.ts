@@ -104,8 +104,14 @@ async function handleProxy(request: NextRequest) {
   for (const cookieStr of setCookieHeaders) {
     const parsed = parseSetCookie(cookieStr);
     if (parsed) {
-      console.log(`[Proxy] Setting cookie: ${parsed.name}, value length: ${parsed.value.length}, options:`, JSON.stringify(parsed.options));
-      response.cookies.set(parsed.name, parsed.value, parsed.options);
+      // Force host-only cookies on the web domain. If an upstream response
+      // includes Domain (e.g. api.* host), browsers can reject it here.
+      const { domain: _ignoredDomain, ...safeOptions } = parsed.options;
+      console.log(
+        `[Proxy] Setting cookie: ${parsed.name}, value length: ${parsed.value.length}, options:`,
+        JSON.stringify(safeOptions),
+      );
+      response.cookies.set(parsed.name, parsed.value, safeOptions);
     } else {
       console.log(`[Proxy] Failed to parse cookie string:`, cookieStr);
     }

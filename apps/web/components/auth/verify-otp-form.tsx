@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -51,7 +50,6 @@ export function VerifyOtpForm({
   initialExpiresAt,
   redirectTo = "/dashboard",
 }: VerifyOtpFormProps) {
-  const router = useRouter();
   const utils = trpc.useUtils();
 
   const [resendSeconds, setResendSeconds] = useState(
@@ -128,8 +126,9 @@ export function VerifyOtpForm({
         redirectTo.startsWith("/") && !redirectTo.startsWith("//")
           ? redirectTo
           : "/dashboard";
-      router.push(destination);
-      router.refresh();
+      // Use a hard navigation so the next request always includes freshly set
+      // auth cookies from the OTP verification response.
+      window.location.assign(destination);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Verification failed";
       toast.error(message);
