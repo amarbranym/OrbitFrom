@@ -8,7 +8,7 @@
     "db:migrate": "dotenv -e apps/api/.env -- turbo db:migrate",
     "db:check": "dotenv -e apps/api/.env -- pnpm --filter @repo/database exec tsx scripts/test-db.ts",
     "db:seed": "dotenv -e apps/api/.env -- turbo db:seed",
-9    "setup": "pnpm db:migrate",
+    "setup": "pnpm db:migrate",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
