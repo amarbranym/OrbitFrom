@@ -45,13 +45,36 @@ const submitRateLimiter = rateLimit({
 const webOrigin = process.env.WEB_URL ?? "http://localhost:3000";
 const isProduction =
   env.NODE_ENV === "prod" || env.NODE_ENV === "production";
+const allowedOrigins = webOrigin
+  .split(",")
+  .map((origin) => origin.trim().replace(/\/$/, ""))
+  .filter(Boolean);
 
-app.use(
-  cors({
-    origin: isProduction ? webOrigin : [webOrigin, "http://localhost:3000"],
-    credentials: true,
-  }),
-);
+if (!isProduction) {
+  allowedOrigins.push("http://localhost:3000");
+}
+
+const corsMiddleware = cors({
+  origin(origin, callback) {
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    const normalizedOrigin = origin.replace(/\/$/, "");
+    if (allowedOrigins.includes(normalizedOrigin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error(`Origin ${origin} is not allowed by CORS`));
+  },
+  credentials: true,
+  optionsSuccessStatus: 204,
+});
+
+app.use(corsMiddleware);
+app.options(/.*/, corsMiddleware);
 
 app.use(express.json());
 
