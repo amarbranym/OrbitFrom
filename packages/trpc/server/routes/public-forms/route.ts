@@ -3,6 +3,7 @@ import {
   formSubmissionSchema,
 } from "@repo/form-schema";
 import { z } from "zod";
+import type { IncomingMessage } from "node:http";
 
 import { publicProcedure, router } from "../../trpc";
 import { generatePath } from "../../utils/path-generator";
@@ -62,11 +63,12 @@ export const publicFormsRouter = router({
     )
     .output(formSubmissionSchema)
     .mutation(async ({ ctx, input }) => {
+      const nodeReq = ctx.req as unknown as IncomingMessage;
       const submission = await submissionService.submitBySlug(input.slug, input.answers, {
-        ip: getClientIp(ctx.req),
+        ip: getClientIp(nodeReq),
         userAgent:
-          typeof ctx.req.headers["user-agent"] === "string"
-            ? ctx.req.headers["user-agent"]
+          typeof nodeReq.headers["user-agent"] === "string"
+            ? nodeReq.headers["user-agent"]
             : undefined,
         honeypot: input.honeypot,
       });

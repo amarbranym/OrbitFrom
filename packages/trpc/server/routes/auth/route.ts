@@ -5,6 +5,7 @@ import {
   signupEmailSchema,
   verifyOtpSchema,
 } from "@repo/auth/schemas";
+import type { ServerResponse } from "node:http";
 
 import { z, zodUndefinedModel } from "../../schema";
 import { authService, userService } from "../../services";
@@ -79,17 +80,26 @@ export const authRouter = router({
     .meta({ openapi: { method: "POST", path: getPath("/signup/verify-otp"), tags: TAGS } })
     .input(verifyOtpSchema)
     .output(z.object({ user: sessionUserSchema }))
-    .mutation(({ input, ctx }) => authService.verifySignupOtp(input, ctx.res)),
+    .mutation(({ input, ctx }) =>
+      authService.verifySignupOtp(input, ctx.res as unknown as ServerResponse),
+    ),
 
   verifyLoginOtp: authProcedure
     .meta({ openapi: { method: "POST", path: getPath("/login/verify-otp"), tags: TAGS } })
     .input(verifyOtpSchema)
     .output(z.object({ user: sessionUserSchema }))
-    .mutation(({ input, ctx }) => authService.verifyLoginOtp(input, ctx.res)),
+    .mutation(({ input, ctx }) =>
+      authService.verifyLoginOtp(input, ctx.res as unknown as ServerResponse),
+    ),
 
   signOut: authProcedure
     .meta({ openapi: { method: "POST", path: getPath("/sign-out"), tags: TAGS } })
     .input(zodUndefinedModel)
     .output(z.object({ success: z.literal(true) }))
-    .mutation(({ ctx }) => authService.signOut(ctx.req, ctx.res)),
+    .mutation(({ ctx }) =>
+      authService.signOut(
+        ctx.req as unknown as import("node:http").IncomingMessage,
+        ctx.res as unknown as ServerResponse,
+      ),
+    ),
 });
