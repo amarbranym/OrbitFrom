@@ -65,14 +65,6 @@ const allowedOrigins = new Set(
       .split(",")
       .map(normalizeOrigin)
       .filter(Boolean),
-    ...(process.env.NEXT_PUBLIC_WEB_URL ?? "")
-      .split(",")
-      .map(normalizeOrigin)
-      .filter(Boolean),
-    ...(process.env.FRONTEND_URL ?? "")
-      .split(",")
-      .map(normalizeOrigin)
-      .filter(Boolean),
     toHttpsOrigin(process.env.VERCEL_PROJECT_PRODUCTION_URL),
     toHttpsOrigin(process.env.VERCEL_BRANCH_URL),
     toHttpsOrigin(process.env.VERCEL_URL),

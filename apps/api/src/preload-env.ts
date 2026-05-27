@@ -2,8 +2,12 @@ import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { config } from "dotenv";
 
-/** Load monorepo root .env before any @repo/database import. */
-const rootEnv = resolve(__dirname, "../../../.env");
-if (existsSync(rootEnv)) {
-  config({ path: rootEnv, override: true });
+/** Load apps/api/.env before any @repo/database import. */
+const apiEnv = resolve(__dirname, "../.env");
+const legacyRootEnv = resolve(__dirname, "../../../.env");
+
+if (existsSync(apiEnv)) {
+  config({ path: apiEnv, override: true });
+} else if (existsSync(legacyRootEnv)) {
+  config({ path: legacyRootEnv, override: true });
 }

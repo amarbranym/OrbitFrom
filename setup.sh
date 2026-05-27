@@ -1,20 +1,19 @@
 #!/bin/bash
 
-if [ -f ".env" ]; then
-  echo ".env file exists. ✅"
+set -e
+
+if [ -f "apps/api/.env" ]; then
+  echo "apps/api/.env exists. ✅"
 else
-  echo ".env file does not exist."
-  cp .env.example .env
+  echo "Creating apps/api/.env from example…"
+  cp apps/api/.env.example apps/api/.env
 fi
 
-for dir in apps/* packages/*; do
-  if [ -d "$dir" ]; then
-    target="$dir/.env"
-    # Only link if target does not exist or is not already a symlink to the right location
-    if [ ! -L "$target" ] || [ "$(readlink -- "$target")" != "$(realpath .env)" ]; then
-      if [ ! -e "$target" ]; then
-        link .env "$target"
-      fi
-    fi
-  fi
-done
+if [ -f "apps/web/.env" ]; then
+  echo "apps/web/.env exists. ✅"
+else
+  echo "Creating apps/web/.env from example…"
+  cp apps/web/.env.example apps/web/.env
+fi
+
+echo "Edit apps/api/.env (database, SESSION_SECRET) before running pnpm db:migrate && pnpm dev"

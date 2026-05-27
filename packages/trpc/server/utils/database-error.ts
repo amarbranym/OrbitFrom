@@ -24,7 +24,7 @@ function isDrizzleQueryError(error: unknown): boolean {
 
 const PG_MESSAGES: Record<string, string> = {
   "28P01":
-    "Database password rejected. Check DATABASE_URL in the repo root .env (Supabase → Settings → Database).",
+    "Database password rejected. Check DATABASE_URL in apps/api/.env (Supabase → Settings → Database).",
   "42P01":
     'Database tables are missing. From the repo root run: pnpm db:migrate (or run supabase/migrations/20260526120000_orbitform_initial_schema.sql in Supabase SQL editor).',
   "3D000":
@@ -51,6 +51,6 @@ export function toDatabaseTrpcError(error: unknown): TRPCError | null {
     code: "INTERNAL_SERVER_ERROR",
     message: detail
       ? `Database error: ${detail}`
-      : "Database error. Restart the API (pnpm dev) after updating .env, then try again.",
+      : "Database error. Restart the API (pnpm dev) after updating apps/api/.env, then try again.",
   });
 }

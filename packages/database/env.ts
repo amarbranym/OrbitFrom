@@ -17,12 +17,14 @@ function findMonorepoRoot(startDir: string): string {
 }
 
 const repoRoot = findMonorepoRoot(process.cwd());
-const rootEnvPath = resolve(repoRoot, ".env");
+const apiEnvPath = resolve(repoRoot, "apps/api/.env");
+const legacyRootEnvPath = resolve(repoRoot, ".env");
 const cwdEnvPath = resolve(process.cwd(), ".env");
 
-// Prefer repo root .env so apps/api does not use a stale local DATABASE_URL.
-if (existsSync(rootEnvPath)) {
-  config({ path: rootEnvPath });
+if (existsSync(apiEnvPath)) {
+  config({ path: apiEnvPath });
+} else if (existsSync(legacyRootEnvPath)) {
+  config({ path: legacyRootEnvPath });
 } else if (existsSync(cwdEnvPath)) {
   config({ path: cwdEnvPath });
 }

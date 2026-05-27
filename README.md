@@ -16,8 +16,9 @@ Production-style form builder SaaS on Turborepo, tRPC, Zod, Drizzle ORM, and Sup
 
 ```bash
 pnpm install
-cp .env.example .env
-# Edit .env: Supabase DATABASE_URL, DIRECT_URL, SESSION_SECRET, etc.
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+# Edit apps/api/.env: DATABASE_URL, DIRECT_URL, SESSION_SECRET, etc.
 pnpm db:migrate
 pnpm dev
 ```
@@ -48,7 +49,7 @@ After `pnpm db:seed`:
 | Field | Value |
 |-------|-------|
 | Email | `demo@orbitform.app` |
-| OTP | `000000` (set `DEMO_OTP_CODE=000000` in `.env`) |
+| OTP | `000000` (set `DEMO_OTP_CODE=000000` in `apps/api/.env`) |
 
 ## Authentication
 
