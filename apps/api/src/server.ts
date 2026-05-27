@@ -72,7 +72,7 @@ logger.debug(`docs: ${env.BASE_URL}/docs`);
 app.use("/docs", (req, res, next) => {
   import("@scalar/express-api-reference")
     .then(({ apiReference }) => {
-      apiReference({ url: "/openapi.json" })(req, res, next);
+      apiReference({ url: "/openapi.json" })(req, res);
     })
     .catch(next);
 });
