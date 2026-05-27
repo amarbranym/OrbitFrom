@@ -1,2 +1,7 @@
-// Use the prebuilt bundle so Vercel does not type-check workspace TS sources (logger, trpc, etc.).
-export { default } from "../dist/server.js";
+// Vercel serverless function entry point
+// Uses the tsup-compiled bundle which has all @repo/* packages inlined
+import "../src/preload-env";
+
+import { app } from "../dist/server";
+
+export default app;
