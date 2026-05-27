@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_INTERNAL_URL = process.env.API_INTERNAL_URL ?? "http://localhost:8000";
+const API_INTERNAL_URL = (process.env.API_INTERNAL_URL ?? "http://localhost:8000").replace(/\/$/, "");
 
 function parseSetCookie(cookieStr: string) {
   const parts = cookieStr.split(";").map((p) => p.trim());
