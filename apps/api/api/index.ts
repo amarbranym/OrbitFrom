@@ -1,5 +1,3 @@
-import "../src/preload-env";
+import "./preload-env";
 
-import { app } from "../src/server";
-
-export default app;
+export { app as default } from "./server";

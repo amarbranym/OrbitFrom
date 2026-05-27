@@ -1,3 +1,5 @@
+import "./preload-env";
+
 import express from "express";
 import rateLimit from "express-rate-limit";
 import { logger } from "@repo/logger";
@@ -147,6 +149,20 @@ app.use(
     router: serverRouter,
     createContext,
   }),
+);
+
+// Required on Vercel serverless so unhandled errors don't leave the function in a bad state.
+app.use(
+  (
+    err: unknown,
+    _req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction,
+  ) => {
+    logger.error("Unhandled API error", { err });
+    if (res.headersSent) return;
+    res.status(500).json({ error: "Internal server error" });
+  },
 );
 
 export default app;
