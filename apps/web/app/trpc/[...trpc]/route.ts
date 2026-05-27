@@ -96,10 +96,15 @@ async function handleProxy(request: NextRequest) {
     }
   }
 
+  console.log(`[Proxy] Request: ${request.method} ${pathname}, Status: ${apiResponse.status}, Cookies in API response:`, setCookieHeaders);
+
   for (const cookieStr of setCookieHeaders) {
     const parsed = parseSetCookie(cookieStr);
     if (parsed) {
+      console.log(`[Proxy] Setting cookie: ${parsed.name}, value length: ${parsed.value.length}, options:`, JSON.stringify(parsed.options));
       response.cookies.set(parsed.name, parsed.value, parsed.options);
+    } else {
+      console.log(`[Proxy] Failed to parse cookie string:`, cookieStr);
     }
   }
 

@@ -10,6 +10,10 @@ export function middleware(request: NextRequest) {
   const sessionToken = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const isAuthenticated = Boolean(sessionToken);
 
+  console.log(`[Middleware] Path: ${pathname}, Token found: ${Boolean(sessionToken)}, Token: ${sessionToken ? sessionToken.substring(0, 8) + "..." : "none"}`);
+  console.log(`[Middleware] All cookies:`, request.cookies.getAll().map(c => c.name));
+  console.log(`[Middleware] Raw Cookie Header:`, request.headers.get("cookie"));
+
   const isAuthRoute = AUTH_PATHS.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );
