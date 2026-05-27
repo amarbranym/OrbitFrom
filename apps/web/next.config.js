@@ -29,10 +29,6 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: "/trpc/:path*",
-        destination: `${apiInternalUrl}/trpc/:path*`,
-      },
-      {
         source: "/docs",
         destination: `${apiInternalUrl}/docs`,
       },
