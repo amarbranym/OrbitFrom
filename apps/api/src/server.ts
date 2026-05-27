@@ -42,16 +42,55 @@ const submitRateLimiter = rateLimit({
   message: { error: "Too many form submissions. Please wait a minute." },
 });
 
-const webOrigin = process.env.WEB_URL ?? "http://localhost:3000";
 const isProduction =
   env.NODE_ENV === "prod" || env.NODE_ENV === "production";
-const allowedOrigins = webOrigin
-  .split(",")
-  .map((origin) => origin.trim().replace(/\/$/, ""))
-  .filter(Boolean);
+
+function normalizeOrigin(value: string) {
+  return value.trim().replace(/\/$/, "");
+}
+
+function toHttpsOrigin(value?: string) {
+  if (!value) return null;
+  const cleaned = value.trim().replace(/\/$/, "");
+  if (!cleaned) return null;
+  if (cleaned.startsWith("http://") || cleaned.startsWith("https://")) {
+    return cleaned;
+  }
+  return `https://${cleaned}`;
+}
+
+const allowedOrigins = new Set(
+  [
+    ...(process.env.WEB_URL ?? "")
+      .split(",")
+      .map(normalizeOrigin)
+      .filter(Boolean),
+    ...(process.env.NEXT_PUBLIC_WEB_URL ?? "")
+      .split(",")
+      .map(normalizeOrigin)
+      .filter(Boolean),
+    ...(process.env.FRONTEND_URL ?? "")
+      .split(",")
+      .map(normalizeOrigin)
+      .filter(Boolean),
+    toHttpsOrigin(process.env.VERCEL_PROJECT_PRODUCTION_URL),
+    toHttpsOrigin(process.env.VERCEL_BRANCH_URL),
+    toHttpsOrigin(process.env.VERCEL_URL),
+  ].filter((value): value is string => Boolean(value)),
+);
 
 if (!isProduction) {
-  allowedOrigins.push("http://localhost:3000");
+  allowedOrigins.add("http://localhost:3000");
+}
+
+function isAllowedOrigin(origin: string) {
+  const normalizedOrigin = normalizeOrigin(origin);
+  if (allowedOrigins.has(normalizedOrigin)) return true;
+
+  // Allow Vercel preview/production domains when not explicitly listed.
+  if (normalizedOrigin.endsWith(".vercel.app")) return true;
+
+  return false;
 }
 
 const corsMiddleware = cors({
@@ -61,13 +100,12 @@ const corsMiddleware = cors({
       return;
     }
 
-    const normalizedOrigin = origin.replace(/\/$/, "");
-    if (allowedOrigins.includes(normalizedOrigin)) {
+    if (isAllowedOrigin(origin)) {
       callback(null, true);
       return;
     }
 
-    callback(new Error(`Origin ${origin} is not allowed by CORS`));
+    callback(null, false);
   },
   credentials: true,
   optionsSuccessStatus: 204,
